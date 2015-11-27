@@ -1,5 +1,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
+#include "multiple_kalman_filter.h"
+
 using namespace std;
 using namespace cv;
 
