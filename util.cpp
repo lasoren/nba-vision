@@ -108,7 +108,7 @@ vector<RegionMetrics*> ComputeRegionMetrics(const Mat& components_image,
 			(region_metrics->x_second_moment -
                          region_metrics->y_second_moment)) / 2;
 		double e_min, e_max;
-		ComputeEminEmax(region_metrics->x_second_moment,
+		ComputeEminEax(region_metrics->x_second_moment,
 			2 * region_metrics->cross_second_moment,
 			region_metrics->y_second_moment,
 			&e_min, &e_max);
