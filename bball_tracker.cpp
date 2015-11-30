@@ -14,8 +14,11 @@ BballTracker::BballTracker(
             (Mat_<float>(2, 1) << init_loc.first, init_loc.second));
 }
 
-BballTracker::TrackBall(Mat frame) {
+BballTracker::TrackBall(Mat& frame) {
 
+}
+
+BballTracker::ColorSegmentation(const Mat& frame, Mat& binary_image) {
 }
 
 }

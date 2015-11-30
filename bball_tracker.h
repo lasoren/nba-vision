@@ -19,9 +19,13 @@ public:
     // Performs color segmentation, connected components, circularity, size filtering,
     // finds basketball using prediction from Kalman filter or where it should be (if
     // it is hidden) and then draws the location of the ball on the frame.
-    TrackBall(Mat frame);
+    TrackBall(Mat& frame);
 
 private:
+    // Segments the image into background and foreground by finding pixels in the
+    // range of the color of the ball.
+    ColorSegmentation(const Mat& frame, Mat& binary_image);
+
     // A pointer to the MultipleKalmanFilter object owned by calling program.
     const MultipleKalmanFilter* mkf_; 
 }
