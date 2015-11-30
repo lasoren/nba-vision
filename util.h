@@ -1,5 +1,10 @@
+#ifndef UTIL_H
+#define UTIL_H
+
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace cv;
+using namespace std;
 
 namespace nba_vision {
 
@@ -37,9 +42,6 @@ public:
 
 	// For easy printing of region_metrics.
 	friend ostream &operator<<(ostream &output, const RegionMetrics region_metrics) {
-		if (region_metrics.area < kOnlyPrintDetailsForAreaOver) {
-			return output;
-		}
 		output << "Region metrics for component: " << region_metrics.component_index << endl;
 		output << "  Area: " << region_metrics.area << endl;
 		output << "  Number of boundary pixels: " << region_metrics.num_boundary_pixels << endl;
@@ -52,7 +54,6 @@ public:
 		output << "  Orientation: " << region_metrics.orientation << endl;
 		output << "  Circularity: " << region_metrics.circularity << endl;
 		output << "  Compactness: " << region_metrics.compactness << endl;
-		output << "  Color: " << region_metrics.color << endl;
 		output << endl << endl;
 		return output;
 	}
@@ -66,3 +67,5 @@ int ComputeConnectedComponents(const Mat& binary_image, Mat& output_image);
 vector<RegionMetrics*> ComputeRegionMetrics(const Mat& components_image, const int& num_components);
 
 }
+
+#endif  // UTIL_H

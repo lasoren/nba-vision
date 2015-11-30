@@ -1,8 +1,12 @@
 #include "util.h"
 
+#include <stack>
+
 using namespace cv;
 
 namespace nba_vision {
+
+typedef pair<int, int> PixelLoc;
 
 bool IsBoundaryPixel(const PixelLoc& current_pixel, const int& component_index,
         const Mat& components_image) {
@@ -108,7 +112,7 @@ vector<RegionMetrics*> ComputeRegionMetrics(const Mat& components_image,
 			(region_metrics->x_second_moment -
                          region_metrics->y_second_moment)) / 2;
 		double e_min, e_max;
-		ComputeEminEax(region_metrics->x_second_moment,
+		ComputeEminEmax(region_metrics->x_second_moment,
 			2 * region_metrics->cross_second_moment,
 			region_metrics->y_second_moment,
 			&e_min, &e_max);
