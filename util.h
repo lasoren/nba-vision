@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <opencv2/highgui/highgui.hpp>
+#include <vector>
 
 using namespace cv;
 using namespace std;
@@ -65,6 +66,19 @@ int ComputeConnectedComponents(const Mat& binary_image, Mat& output_image);
 
 // Computes all of the metrics for the output_image from ComputeConnectedComponents.
 vector<RegionMetrics*> ComputeRegionMetrics(const Mat& components_image, const int& num_components);
+
+// CDF of the standard normal distrobution.
+double Phi(const double& x, const double& mean, const double& stddev);
+
+// Filters a list of region metrics and the associated components image for
+// a specified filter: a function that returns true if the list item
+// should be filtered.
+void FilterRegionMetrics(Mat& components_image,
+        vector<RegionMetrics*>& region_metrics_list,
+        bool (*filter)(RegionMetrics* region_metrics));
+
+// Converts a components image with component indexes into a binary image.
+void ConvertComponentsImageToBinary(const Mat& components_image, Mat& output_image);
 
 }
 

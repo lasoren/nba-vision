@@ -1,7 +1,11 @@
 #include "util.h"
 
+#include <cmath>
+#include <iostream>
 #include <stack>
+#include <set>
 
+using namespace std;
 using namespace cv;
 
 namespace nba_vision {
@@ -121,10 +125,14 @@ vector<RegionMetrics*> ComputeRegionMetrics(const Mat& components_image,
 	return region_metrics_list;
 }
 
-void SearchForObject(const Mat& binary_image, const PixelLoc& starting_point,
+bool SearchForObject(const Mat& binary_image, const PixelLoc& starting_point,
         Mat& output_image) {
+        // For removing the object if its too small.
+        vector<PixelLoc> pixel_vec;
+        pixel_vec.push_back(starting_point);
+        // For performing graph search.
 	stack<PixelLoc> pixel_stack;
-	pixel_stack.push(starting_point);
+	pixel_stack.push(starting_point); 
 	while (!pixel_stack.empty()) {
 		PixelLoc current_pixel = pixel_stack.top();
 		pixel_stack.pop();
@@ -156,13 +164,21 @@ void SearchForObject(const Mat& binary_image, const PixelLoc& starting_point,
                                             output_image.at<uchar>(current_pixel.first,
                                                     current_pixel.second);
 					pixel_stack.push(PixelLoc(new_r, new_c));
+                                        pixel_vec.push_back(PixelLoc(new_r, new_c));
 				}
 			}
 		}
 	}
+        if (pixel_vec.size() < 50) {
+            for (const auto& pixel_loc : pixel_vec) {
+                output_image.at<uchar>(pixel_loc.first, pixel_loc.second) = 1;
+            }
+            return false;
+        }
+        return true;
 }
 
-int ComputeConnectedComponents(const Mat& binary_image, Mat output_image) {
+int ComputeConnectedComponents(const Mat& binary_image, Mat& output_image) {
 	output_image = Mat::zeros(binary_image.rows, binary_image.cols, CV_8UC1);
 	// 1 will mean not part of an object (part of background).
 	int current_component_label = 2;
@@ -184,17 +200,84 @@ int ComputeConnectedComponents(const Mat& binary_image, Mat output_image) {
 				output_image.at<uchar>(r, c) = current_component_label;
 				// Recursively search for this entire object based on
                                 // neighboring pixels.
-				SearchForObject(binary_image, PixelLoc(r, c),
+				bool new_obj = SearchForObject(binary_image, PixelLoc(r, c),
                                         output_image);
 				// Increment the current component label so that
                                 // the next object gets a new label.
-				current_component_label++;
+                                if (new_obj) {
+				    current_component_label++;
+                                }
+                                if (current_component_label > 255) {
+                                    cout << "Current component label: " << current_component_label << endl;
+                                    return current_component_label - 1;
+                                }
 			}
 		}
 	}
 	// Entire output_image should be labeled now. 1 for background. 2 - N for
         // the other objects.
 	return current_component_label - 1;
+}
+
+double Phi(double x) {
+    // constants
+    double a1 =  0.254829592;
+    double a2 = -0.284496736;
+    double a3 =  1.421413741;
+    double a4 = -1.453152027;
+    double a5 =  1.061405429;
+    double p  =  0.3275911;
+    
+    // Save the sign of x
+    int sign = 1;
+    if (x < 0)
+        sign = -1;
+    x = fabs(x)/sqrt(2.0);
+    
+    // A&S formula 7.1.26
+    double t = 1.0/(1.0 + p*x);
+    double y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*exp(-x*x);
+    
+    return 0.5*(1.0 + sign*y);
+}
+
+double Phi(const double& x, const double& mean, const double& stddev) {
+    return Phi((x - mean) / stddev);
+}
+
+void FilterRegionMetrics(Mat& components_image,
+        vector<RegionMetrics*>& region_metrics_list,
+        bool (*filter)(RegionMetrics* region_metrics)) {
+    set<int> removed_indices;    
+    for (int i = region_metrics_list.size() - 1; i >= 0; i--) {
+        RegionMetrics* region_metrics = region_metrics_list[i];
+        if (filter(region_metrics)) {
+            // Add the component index to the set to be removed from the
+            // components_image.
+            removed_indices.insert(region_metrics->component_index);
+            region_metrics_list.erase(region_metrics_list.begin() + i);
+        }
+    }
+
+    for (int r = 0; r < components_image.rows; r++) {
+        for (int c = 0; c < components_image.cols; c++) {
+            if (removed_indices.find(components_image.at<uchar>(r, c)) !=
+                    removed_indices.end()) {
+                components_image.at<uchar>(r, c) = 0;
+            } 
+        }
+    }
+}
+
+void ConvertComponentsImageToBinary(const Mat& components_image, Mat& output_image) {
+    output_image = Mat::zeros(components_image.rows, components_image.cols, CV_8UC1);
+    for (int r = 0; r < components_image.rows; r++) {
+        for (int c = 0; c < components_image.cols; c++) {
+            if (components_image.at<uchar>(r, c) != 1) {
+                output_image.at<uchar>(r, c) = 255;
+            }
+        }
+    }
 }
 
 }
