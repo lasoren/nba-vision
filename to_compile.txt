@@ -1,1 +1,1 @@
-g++ $(pkg-config --cflags --libs opencv) nba_vision.cpp -o nba_vision.o
+g++ $(pkg-config --cflags --libs opencv) *.cpp -o nba_vision_main.o -std=c++11
