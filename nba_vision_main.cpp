@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
         
         imshow(kWindowName, frame);
 
-        if (waitKey(30) == 27) {
+        if (waitKey(5) == 27) {
             cout << "Esc key pressed." << endl;
             break;
         }
