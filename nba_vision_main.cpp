@@ -4,6 +4,7 @@
 
 #include "multiple_kalman_filter.h"
 #include "bball_tracker.h"
+#include "optical_flow.h"
 
 using namespace cv;
 using namespace std;
@@ -29,6 +30,7 @@ int main(int argc, char* argv[]) {
 
     MultipleKalmanFilter mkf(0, NULL);
     BballTracker bball_tracker(&mkf, kDebug);
+    OpticalFlow opf(true);
 
     while(true) {
         Mat frame;
@@ -40,7 +42,7 @@ int main(int argc, char* argv[]) {
         }
         // Track the basketball in each frame.
         bball_tracker.TrackBall(frame);
-        
+        opf.computeOpticalFlow(frame);
         imshow(kWindowName, frame);
 
         if (waitKey(30) == 27) {

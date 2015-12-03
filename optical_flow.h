@@ -11,10 +11,10 @@
 using namespace std;
 using namespace cv;
 
-namespace optical_flow {
+namespace nba_vision {
 
 const char windowName[] = "Optical Flow";
-const int MAX_COUNT=500;
+const int MAX_COUNT=1000;
 const Size subPixWinSize(10,10), winSize(31,31);
 const TermCriteria termcrit(TermCriteria::COUNT|TermCriteria::EPS,20,0.03);
 
@@ -23,15 +23,14 @@ public:
 	OpticalFlow(bool debug=false);
 	// Compute Optical flow with given points.
 	// Compute Optical flow without points given (we calculate our own points).	
-	computeOpticalFlow(Mat current_frame);
+	void computeOpticalFlow(Mat current_frame);
 private:
 	bool debug_;
-	drawFlow(Point2f point_a, Point2f point_b);
+	void drawFlow(Point2f point_a, Point2f point_b);
 	// Maximum number of reference points
 	Mat previous_frame;
 	// Points used to track optical flow
 	vector<Point2f> points[2];
-
 };
 
 }
