@@ -7,6 +7,8 @@
 using namespace cv;
 
 namespace nba_vision {
+// For the multiple kalman filter. A unique integer to identify the ball.
+const int kBballIndex = 0;
 
 const char kBinaryWindowName[] = "Bball Segmentation";
 // Value represents a probability of two standard deviations for each color.

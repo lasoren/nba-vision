@@ -11,8 +11,6 @@ using namespace cv;
 
 namespace nba_vision {
 
-const int kBballIndex = 1;
-
 class BballTracker {
 public:
     BballTracker(MultipleKalmanFilter* mkf, bool debug=false);
