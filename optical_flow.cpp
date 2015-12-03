@@ -13,9 +13,7 @@ OpticalFlow::OpticalFlow(bool debug){
 	}
 }
 
-OpticalFlow::computeOpticalFlow(Mat current_frame, vector<Point2f> current_points){
-	points[1] = current_points;
-	// checks if first frame
+OpticalFlow::computeOpticalFlow(Mat current_frame){
 	if(!points[0].empty()){
 		vector<uchar> status;
 		vector<float> err;
@@ -27,10 +25,17 @@ OpticalFlow::computeOpticalFlow(Mat current_frame, vector<Point2f> current_point
 			else
 		    		drawFlow(points[0][i], points[1][i]);
 	    	}
-	// update for next frame
-	if (debug_){
-		imshow(windowName, previous_frame);
+	//debug	
+		if (debug_){
+			imshow(windowName, previous_frame);
+		}
 	}
+	else {
+		goodFeaturesToTrack(current_frame, points[1], MAX_COUNT,
+					 .01, 10, Mat(), 3, 0, .04);
+		cornerSubPix(current_frame, points[1], subPixWinSize, Size(-1,-1), termcrit);
+	}
+	// update for next frame
 	swap(points[1], points[0]); // new points become old points
 	previous_frame = current_frame; // current frame becomes previous frame.
 }

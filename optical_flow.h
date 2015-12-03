@@ -22,7 +22,6 @@ class OpticalFlow{
 public:
 	OpticalFlow(bool debug=false);
 	// Compute Optical flow with given points.
-	computeOpticalFlow(Mat current_frame, vector<Point2f> points[2]);
 	// Compute Optical flow without points given (we calculate our own points).	
 	computeOpticalFlow(Mat current_frame);
 private:
