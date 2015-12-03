@@ -59,13 +59,10 @@ void BballTracker::TrackBall(Mat& frame) {
     int num_components = ComputeConnectedComponents(binary_image, components_image);
     vector<RegionMetrics*> region_metrics_list =
         ComputeRegionMetrics(components_image, num_components);
-    cout << "Metrics list size: " << region_metrics_list.size() << endl;
     // Filter the region_metrics_list by area.
     FilterRegionMetrics(components_image, region_metrics_list, area_filter);
-    cout << "Metrics list size: " << region_metrics_list.size() << endl;
     // Filter the region_metrics_list by circularity.
     FilterRegionMetrics(components_image, region_metrics_list, circularity_filter);
-    cout << "Metrics list size: " << region_metrics_list.size() << endl;
     if (debug_) {
         ConvertComponentsImageToBinary(components_image, binary_image);
         imshow(kBinaryWindowName, binary_image);
