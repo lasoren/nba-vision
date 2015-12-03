@@ -1,5 +1,6 @@
 #include "bball_tracker.h"
 
+#include <iostream>
 #include <math.h>
 #include <vector>
 
@@ -25,7 +26,14 @@ BballTracker::BballTracker(MultipleKalmanFilter* mkf, bool debug) {
 
 BballTracker::BballTracker(
         MultipleKalmanFilter* mkf,
-        const pair<int, int>& init_loc) {
+        const pair<int, int>& init_loc,
+        bool debug) {
+    debug_ = debug;
+    if (debug_) {
+        cout << "Initial location: " << init_loc.first << ", " <<
+            init_loc.second << endl;
+        namedWindow(kBinaryWindowName, CV_WINDOW_AUTOSIZE);
+    }
     mkf_ = mkf;
     mkf_->CorrectAndPredictForObject(kBballIndex,
             (Mat_<float>(2, 1) << init_loc.first, init_loc.second));

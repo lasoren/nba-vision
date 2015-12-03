@@ -14,10 +14,14 @@ const int kBballIndex = 0;
 
 class BballTracker {
 public:
+    BballTracker() {
+    }
+
     BballTracker(MultipleKalmanFilter* mkf, bool debug=false);
 
     // Initialize the tracker with a starting location.
-    BballTracker(MultipleKalmanFilter* mkf, const pair<int, int>& init_loc);
+    BballTracker(MultipleKalmanFilter* mkf, const pair<int, int>& init_loc,
+            bool debug=false);
     
     // Performs color segmentation, connected components, circularity, size filtering,
     // finds basketball using prediction from Kalman filter or where it should be (if
