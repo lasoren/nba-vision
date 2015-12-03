@@ -50,6 +50,10 @@ int main(int argc, char* argv[]) {
             cout << "Cannot read current frame from the video file." << endl;
             break;
         }
+        if (bball_tracker != nullptr) {
+            // Track the basketball in each frame.
+            bball_tracker->TrackBall(frame);
+        }
 
         imshow(kWindowName, frame);
         mtx.lock();
@@ -70,11 +74,9 @@ int main(int argc, char* argv[]) {
             bball_tracker.reset(new BballTracker(&mkf,
                         pair<int, int>(init_ball_x, init_ball_y),
                         kDebug));
+            bball_tracker->TrackBall(frame);
         }
         mtx.unlock();
-        // Track the basketball in each frame.
-        bball_tracker->TrackBall(frame);
-        
 
         if (waitKey(20) == 27) {
             cout << "Esc key pressed." << endl;

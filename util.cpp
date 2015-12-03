@@ -263,7 +263,7 @@ void FilterRegionMetrics(Mat& components_image,
         for (int c = 0; c < components_image.cols; c++) {
             if (removed_indices.find(components_image.at<uchar>(r, c)) !=
                     removed_indices.end()) {
-                components_image.at<uchar>(r, c) = 0;
+                components_image.at<uchar>(r, c) = 1;
             } 
         }
     }
@@ -278,6 +278,12 @@ void ConvertComponentsImageToBinary(const Mat& components_image, Mat& output_ima
             }
         }
     }
+}
+
+double ComputeDistance(double x1, double y1, double x2, double y2) {
+    double x_diff = x2 - x1;
+    double y_diff = y2 - y1;
+    return sqrt(pow(x_diff, 2) + pow(y_diff, 2));
 }
 
 }

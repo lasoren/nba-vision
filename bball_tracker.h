@@ -4,19 +4,17 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include "multiple_kalman_filter.h"
+#include "util.h"
 
 using namespace std;
 using namespace cv;
 
 namespace nba_vision {
 
-const int kBballIndex = 0;
+const int kBballIndex = 1;
 
 class BballTracker {
 public:
-    BballTracker() {
-    }
-
     BballTracker(MultipleKalmanFilter* mkf, bool debug=false);
 
     // Initialize the tracker with a starting location.
@@ -29,6 +27,11 @@ public:
     void TrackBall(Mat& frame);
 
 private:
+    // Loops through the region_metrics_list and finds the region closest to the
+    // prediction.
+    RegionMetrics* FindClosestRegionToPrediction(
+            vector<RegionMetrics*>& region_metrics_list);
+
     // Segments the image into background and foreground by finding pixels in the
     // range of the color of the ball.
     void ColorSegmentation(const Mat& frame, Mat& binary_image) const;
@@ -40,6 +43,8 @@ private:
     MultipleKalmanFilter* mkf_; 
     // Display debug output.
     bool debug_;
+    // Save the predicted values from the kalman filter.
+    Mat_<float> prediction_;
 };
 
 }

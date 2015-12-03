@@ -42,7 +42,7 @@ Mat MultipleKalmanFilter::InitKalmanFilter(KalmanFilter& kalman_filter,
 	kalman_filter.statePost.at<float>(3) = 0;
 	setIdentity(kalman_filter.measurementMatrix);
 	setIdentity(kalman_filter.processNoiseCov, Scalar::all(1e-6));
-	setIdentity(kalman_filter.measurementNoiseCov, Scalar::all(1e-3));
+	setIdentity(kalman_filter.measurementNoiseCov, Scalar::all(1e-4));
 	setIdentity(kalman_filter.errorCovPost, Scalar::all(.01));
 	return kalman_filter.predict();
 }

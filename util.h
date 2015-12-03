@@ -80,6 +80,9 @@ void FilterRegionMetrics(Mat& components_image,
 // Converts a components image with component indexes into a binary image.
 void ConvertComponentsImageToBinary(const Mat& components_image, Mat& output_image);
 
+// Compute the distance between two points.
+double ComputeDistance(double x1, double y1, double x2, double y2);
+
 }
 
 #endif  // UTIL_H
