@@ -15,7 +15,7 @@ OpticalFlow::OpticalFlow(bool debug){
 
 void OpticalFlow::computeOpticalFlow(Mat current_frame){
 	cvtColor(current_frame, current_frame, COLOR_BGR2GRAY);
-	goodFeaturesToTrack(current_frame, points[0], MAX_COUNT, .01, 10, Mat(), 3, 0, .04);
+	goodFeaturesToTrack(current_frame, points[0], MAX_COUNT, .01, 11, Mat(), 3, 0, .04);
 	cornerSubPix(current_frame, points[0], subPixWinSize, Size(-1,-1), termcrit);
 	if(!previous_frame.empty()){
 		vector<uchar> status;
