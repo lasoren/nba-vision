@@ -18,6 +18,8 @@ const int kAreaThreshold = 120;
 const double kCircularityThreshold = 0.3;
 // Basketball cannot move this far between two frames.
 const double kDistanceThreshold = 200;
+// Distance between location and prediction for it to be added to path.
+const double kTighterDistanceThreshold = 50;
 // The location of the template for a net.
 const char kNetTemplateFilename[] = "metadata/net_template.jpg";
 const char kNetTemplateWindowName[] = "Net Template Edges";
@@ -77,8 +79,8 @@ bool circularity_filter(RegionMetrics* region_metrics) {
 
 void BballTracker::TrackBall(Mat& frame) {
     // Find the hoop.
-    unique_ptr<Rect> rect = nullptr;
-    FindNet(frame, rect.get());
+    Rect rect;
+    bool found_net = FindNet(frame, rect);
 
     if (debug_) {
         cout << "Existing prediction: " << prediction_(0) << ", " <<
@@ -101,8 +103,9 @@ void BballTracker::TrackBall(Mat& frame) {
     RegionMetrics* region_metrics = FindClosestRegionToPrediction(
             region_metrics_list);
     Mat_<float> new_loc(2, 1);
+    double dist = -1;
     if (region_metrics != NULL) {
-        double dist = ComputeDistance(
+        dist = ComputeDistance(
                 region_metrics->avg_x, region_metrics->avg_y,
                 prediction_(0), prediction_(1));
         if (debug_) {
@@ -137,6 +140,17 @@ void BballTracker::TrackBall(Mat& frame) {
     if (debug_) {
         cout << "Updated prediction: " << prediction_(0) << ", " <<
             prediction_(1) << endl;
+    }
+    // Update state of the ball based on its location.
+    if (found_net) { 
+         UpdateBallState(rect, new_loc);
+    }
+
+    if (state_ == SHOT) {
+        if (dist != -1 && dist < kTighterDistanceThreshold) {
+            AddLocationToPath(pair<int, int>(new_loc(0), new_loc(1)));
+        }
+        DrawPath(frame);
     }
 }
 
@@ -204,17 +218,15 @@ bool BballTracker::IsBballColor(const Vec3b& color) const {
     return true;
 }
 
-bool BballTracker::FindNet(Mat& detect, Rect* rect) {
+bool BballTracker::FindNet(Mat& detect, Rect& rect) {
     Mat detect_templ;
-    Mat detect_portion = detect(cv::Range(0, detect.rows / 2), cv::Range(0, detect.cols));
+    // Assume that the net will be on the top half of the image.
+    Mat detect_portion = detect(
+            cv::Range(0, detect.rows / 2), cv::Range(0, detect.cols));
     // Convert to greyscale.
     cvtColor(detect_portion, detect_templ, CV_BGR2GRAY); 
     // Find edges in the template image, using Canny edge detection algorithm.
     Canny(detect_templ, detect_templ, 120, 300, 3);
-/*
-    namedWindow("Edges", CV_WINDOW_AUTOSIZE);
-    imshow("Edges", detect_templ);
-*/
 
     Mat resized_templ; 
     Mat result;
@@ -255,11 +267,11 @@ bool BballTracker::FindNet(Mat& detect, Rect* rect) {
         prev_net_location_.reset(
                 new Point(max_correlation_location.x,
                     max_correlation_location.y));
+        return false;
     } else {
-        rectangle(detect,
-                Rect(prev_net_location_->x, prev_net_location_->y,
-                    prev_net_width_, prev_net_height_),
-                Scalar(0, 0, 128), 2);
+        rect = Rect(prev_net_location_->x, prev_net_location_->y,
+                prev_net_width_, prev_net_height_);
+        rectangle(detect, rect, Scalar(0, 0, 128), 2);
         if (ComputeDistance(
                     max_correlation_location.x,
                     max_correlation_location.y,
@@ -270,10 +282,8 @@ bool BballTracker::FindNet(Mat& detect, Rect* rect) {
             prev_net_location_->y = max_correlation_location.y;
             prev_net_width_ = width;
             prev_net_height_ = height;
-            rectangle(detect,
-                    Rect(prev_net_location_->x, prev_net_location_->y,
-                        width, height),
-                    Scalar(0, 0, 255), 2);
+            rect = Rect(prev_net_location_->x, prev_net_location_->y, width, height);
+            rectangle(detect, rect, Scalar(0, 0, 255), 2);
         }
     }
     return true;
@@ -290,6 +300,51 @@ void BballTracker::LoadAndCreateEdgesTemplate(
     cvtColor(edges, edges, CV_BGR2GRAY); 
     // Find edges in the template image, using Canny edge detection algorithm.
     Canny(edges, edges, 100, 200, 3, true);
+}
+
+void BballTracker::UpdateBallState(const Rect& net_rect,
+        const Mat_<float>& current_loc) {
+    switch (state_) {
+        case SHOT: {
+            int rect_bottom = net_rect.y + net_rect.height;
+            if (current_loc(1) > rect_bottom && prediction_(1) > rect_bottom) {
+                if (debug_) {
+                    cout << "Basketball state changed to DEFAULT." << endl;
+                }
+                state_ = DEFAULT;
+            }
+            break;
+        }
+        default: {
+            // Check that both the current location and the prediction are
+            // above the net. Then, assume the ball has been shot.
+            if (current_loc(1) < net_rect.y && prediction_(1) < net_rect.y) {
+                if (debug_) {
+                    cout << "Basketball state changed to SHOT." << endl;
+                }
+                state_ = SHOT;
+            }
+            break;
+        }
+    }
+}
+
+void BballTracker::AddLocationToPath(const pair<int, int>& location) {
+    path_.push_back(location);
+    // Delete the first element of the path if the size of the path gets too large.
+    if (path_.size() > PATH_SIZE) {
+        path_.erase(path_.begin());
+    }
+}
+
+void BballTracker::DrawPath(Mat& frame) {
+    int counter = 0;
+    for (int i = path_.size() - 1; i >= 1 && counter < PATH_SIZE; i--) {
+        line(frame, Point(path_[i].first, path_[i].second),
+                Point(path_[i - 1].first, path_[i - 1].second),
+                Scalar(0, 165, 255), 2);
+        counter++;
+    }
 }
 
 }

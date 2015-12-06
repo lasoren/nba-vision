@@ -1,6 +1,9 @@
 #ifndef BBALL_TRACKER_H
 #define BBALL_TRACKER_H
 
+#include <vector>
+#include <utility>
+
 #include <opencv2/highgui/highgui.hpp>
 
 #include "multiple_kalman_filter.h"
@@ -9,8 +12,11 @@
 using namespace std;
 using namespace cv;
 
+// Basketball states.
 #define DEFAULT 0
 #define SHOT 1
+
+#define PATH_SIZE 14
 
 namespace nba_vision {
 
@@ -43,11 +49,19 @@ private:
     // Uses template matching algorithm to find the net in the frame and
     // draws a rectangle around it.Returns true if the net was found in
     // the current frame and rect is not null. False otherwise.
-    static bool FindNet(Mat& detect, Rect* rect);
-
+    static bool FindNet(Mat& detect, Rect& rect);
+    
+    // Loads net template from disk and computes an edge detected image.
     void InitNetTemplate();
 
     static void LoadAndCreateEdgesTemplate(const char* filename, Mat& edges);
+
+    // Updates the balls state.
+    void UpdateBallState(const Rect& net_rect, const Mat_<float>& current_loc);
+
+    void AddLocationToPath(const pair<int, int>& location);
+
+    void DrawPath(Mat& frame);
 
     // A pointer to the MultipleKalmanFilter object owned by calling program.
     MultipleKalmanFilter* mkf_; 
@@ -57,6 +71,8 @@ private:
     Mat_<float> prediction_;
     // Saves the state of the ball.
     int state_;
+    // Stores the path of the ball.
+    vector< pair<int, int> > path_;
     // Stores the template edges for the net template.
     static unique_ptr<Mat> template_edges_;
     static unique_ptr<Point> prev_net_location_;
