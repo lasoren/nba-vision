@@ -9,6 +9,9 @@
 using namespace std;
 using namespace cv;
 
+#define DEFAULT 0
+#define SHOT 1
+
 namespace nba_vision {
 
 class BballTracker {
@@ -37,12 +40,28 @@ private:
     // Returns true if the color could be that of the basketball. False otherwise.
     bool IsBballColor(const Vec3b& color) const;
 
+    // Uses template matching algorithm to find the net in the frame and
+    // draws a rectangle around it.Returns true if the net was found in
+    // the current frame and rect is not null. False otherwise.
+    static bool FindNet(Mat& detect, Rect* rect);
+
+    void InitNetTemplate();
+
+    static void LoadAndCreateEdgesTemplate(const char* filename, Mat& edges);
+
     // A pointer to the MultipleKalmanFilter object owned by calling program.
     MultipleKalmanFilter* mkf_; 
     // Display debug output.
     bool debug_;
     // Save the predicted values from the kalman filter.
     Mat_<float> prediction_;
+    // Saves the state of the ball.
+    int state_;
+    // Stores the template edges for the net template.
+    static unique_ptr<Mat> template_edges_;
+    static unique_ptr<Point> prev_net_location_;
+    static int prev_net_width_;
+    static int prev_net_height_;
 };
 
 }
