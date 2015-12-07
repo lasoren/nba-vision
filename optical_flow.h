@@ -27,9 +27,10 @@ public:
 private:
 	bool debug_;
 	void drawFlow(Point2f point_a, Point2f point_b);
+	void buildPointGrid(vector<Point2f>& points, Mat current_frame);
 	// Maximum number of reference points
 	Mat previous_frame;
-	// Points used to track optical flow
+	// Points used to track optical flowPoint2f 
 	vector<Point2f> points[2];
 };
 
