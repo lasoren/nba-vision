@@ -47,13 +47,12 @@ void OpticalFlow::drawFlow(Point2f point_a, Point2f point_b){
 
 void OpticalFlow::buildPointGrid(vector<Point2f>& points, Mat current_frame){
 	int rows = current_frame.rows;
-	int cols = current_frame.cols; // column count seems to be incorrect not sure why
+	int cols = current_frame.cols;
 	cout << "rows,cols: " << rows << ", " << cols << endl;
 	for (int x = 0; x < cols; x+=10){
 		for (int y = 0; y < cols; y+=20){
 			Point2f p(x, y);
 			points.push_back(p);
-			//cout << "point at P(" << i << ", " << j << ")" << endl;
 		}
 	}
 }
