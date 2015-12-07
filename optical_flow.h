@@ -16,7 +16,7 @@ namespace nba_vision {
 
 const char windowName[] = "Optical Flow";
 const Size winSize(31,31);
-const TermCriteria termcrit(TermCriteria::COUNT|TermCriteria::EPS,20,0.03)
+const TermCriteria termcrit(TermCriteria::COUNT|TermCriteria::EPS,20,0.03);
 class OpticalFlow{
 public:
 	OpticalFlow(bool debug=false);
@@ -25,7 +25,7 @@ public:
 	void computeOpticalFlow(Mat current_frame);
 private:
 	bool debug_;
-	void drawFlow(Point2f point_a, Point2f point_b);
+	void drawFlow(Point2f point_a, Point2f point_b, bool camera_motion);
 	void buildPointGrid(Mat current_frame);
 	double computeDistance(Point2f point_a, Point2f point_b);
 	void computeAverageOpticalFlow(vector<double> distance);
