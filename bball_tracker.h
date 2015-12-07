@@ -71,6 +71,8 @@ private:
     Mat_<float> prediction_;
     // Saves the state of the ball.
     int state_;
+    // Stores whether the ball went in.
+    bool scored_;
     // Stores the path of the ball.
     vector< pair<int, int> > path_;
     // Stores the template edges for the net template.

@@ -10,7 +10,7 @@ using namespace cv;
 using namespace std;
 using namespace nba_vision;
 
-const bool kDebug = true;
+const bool kDebug = false;
 const char kWindowName[] = "Output";
 
 // Whether or not the user has clicked on the location of the ball in the

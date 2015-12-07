@@ -312,6 +312,19 @@ void BballTracker::UpdateBallState(const Rect& net_rect,
                     cout << "Basketball state changed to DEFAULT." << endl;
                 }
                 state_ = DEFAULT;
+                if (scored_) {
+                    cout << "Shot went into the hoop!" << endl;
+                } else {
+                    cout << "Shot was a miss!" << endl;
+                }
+            }
+            // Check that the ball is in the rect.
+            int rect_right = net_rect.x + net_rect.width;
+            if ((current_loc(1) < rect_bottom || prediction_(1) < rect_bottom) &&
+                    (current_loc(1) > net_rect.y || prediction_(1) > net_rect.y) &&
+                    (current_loc(0) > net_rect.x || prediction_(0) > net_rect.x) &&
+                    (current_loc(0) < rect_right || prediction_(0) < rect_right)) {
+                scored_ = true;
             }
             break;
         }
@@ -323,6 +336,7 @@ void BballTracker::UpdateBallState(const Rect& net_rect,
                     cout << "Basketball state changed to SHOT." << endl;
                 }
                 state_ = SHOT;
+                scored_ = false;
             }
             break;
         }
