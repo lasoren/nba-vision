@@ -28,6 +28,7 @@ private:
 	void drawFlow(Point2f point_a, Point2f point_b, bool camera_motion);
 	void buildPointGrid(Mat current_frame);
 	double computeDistance(Point2f point_a, Point2f point_b);
+	double computeAngle(Point2f point_a, Point2f point_b);
 	void computeAverageOpticalFlow(vector<double> distance);
 	void computeSTDOpticalFlow(vector<double> distance);	
 	// Maximum number of reference points

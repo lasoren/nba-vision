@@ -19,7 +19,7 @@ void OpticalFlow::computeOpticalFlow(Mat current_frame){
 		buildPointGrid(current_frame);
 	}
 	if( !previous_frame.empty() ){
-		vector<double> distance(points[0].size());
+		vector<double> distance(points[0].size()), angle(points[0].size());
 		vector<uchar> status;
 		vector<float> err;
 
@@ -29,7 +29,8 @@ void OpticalFlow::computeOpticalFlow(Mat current_frame){
 		for( int i = 0; i < points[1].size(); i++ ){
                 	if( !status[i] )
                     		continue;
-			distance[i] = (computeDistance(points[0][i], points[1][i]));
+			distance[i] = computeDistance(points[0][i], points[1][i]);
+			angle[i] = computeAngle(points[0][i], points[1][i]);
 	    	}
 		computeAverageOpticalFlow(distance);
 		computeSTDOpticalFlow(distance);
@@ -82,6 +83,11 @@ void OpticalFlow::buildPointGrid(Mat current_frame){
 
 double OpticalFlow::computeDistance(Point2f point_a, Point2f point_b){
 	return sqrt(pow(point_b.x - point_a.x, 2.0) + pow(point_b.y - point_a.y, 2.0));	
+}
+
+double OpticalFlow::computeAngle(Point2f point_a, Point2f point_b){
+	return  atan2( (double) point_b.y - point_a.y, (double) point_b.x - point_a.x );
+	
 }
 
 void OpticalFlow::computeAverageOpticalFlow(vector<double> distance){
