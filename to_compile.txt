@@ -1,1 +1,7 @@
+FOR BASH
+---------
 g++ $(pkg-config --cflags --libs opencv) *.cpp -o nba_vision_main.o -std=c++11
+
+FOR FISH
+--------
+eval g++ (pkg-config --cflags --libs opencv) *.cpp -o nba_vision_main.o -std=c++11 

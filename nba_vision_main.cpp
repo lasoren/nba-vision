@@ -5,6 +5,7 @@
 
 #include "multiple_kalman_filter.h"
 #include "bball_tracker.h"
+#include "optical_flow.h"
 
 using namespace cv;
 using namespace std;
@@ -33,7 +34,7 @@ int main(int argc, char* argv[]) {
 
     VideoWriter output_cap(argv[2], 
                CV_FOURCC('m', 'p', '4', 'v'),
-               30,
+               15,
                Size(video_capture.get(CV_CAP_PROP_FRAME_WIDTH),
                video_capture.get(CV_CAP_PROP_FRAME_HEIGHT)));
     //cout << video_capture.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
@@ -53,6 +54,7 @@ int main(int argc, char* argv[]) {
     MultipleKalmanFilter mkf(0, NULL);
     unique_ptr<BballTracker> bball_tracker;
     ball_init = false;
+    OpticalFlow opf(true);
 
     while (true) {
         Mat frame;
@@ -62,12 +64,14 @@ int main(int argc, char* argv[]) {
             cout << "Cannot read current frame from the video file." << endl;
             break;
         }
+
         if (bball_tracker != nullptr) {
             // Track the basketball in each frame.
             bball_tracker->TrackBall(frame);
 	    output_cap.write(frame);
         }
 
+        opf.computeOpticalFlow(frame);
         imshow(kWindowName, frame);
         mtx.lock();
         if (!ball_init) {
