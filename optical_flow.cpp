@@ -49,8 +49,9 @@ OpticalFlow::OpticalFlow(bool debug){
 	}
 }
 
-void OpticalFlow::computeOpticalFlow(Mat current_frame){
-	cvtColor(current_frame, current_frame, COLOR_BGR2GRAY);
+void OpticalFlow::computeOpticalFlow(Mat& cf){
+	Mat current_frame;
+	cvtColor(cf, current_frame, COLOR_BGR2GRAY);
 	if( points[0].empty() ){
 		buildPointGrid(current_frame);
 	}
@@ -78,7 +79,7 @@ void OpticalFlow::computeOpticalFlow(Mat current_frame){
                 	if( !status[i])
                     		continue;
 			if(!max_bucket.inBucket(distance[i], angle[i])){
-				drawFlow(points[0][i], points[1][i], false);
+				drawFlow(points[0][i], points[1][i], false, cf);
 			}
 	    	}
 		//debug	
@@ -90,14 +91,14 @@ void OpticalFlow::computeOpticalFlow(Mat current_frame){
 	previous_frame = current_frame; // current frame becomes previous frame.
 }
 
-void OpticalFlow::drawFlow(Point2f point_a, Point2f point_b, bool camera_motion){
+void OpticalFlow::drawFlow(Point2f point_a, Point2f point_b, bool camera_motion, Mat& cf){
 	Point p0( ceil( point_a.x ), ceil( point_a.y ) );
 	Point p1( ceil( point_b.x ), ceil( point_b.y ) );
 	if (camera_motion){
-		line( previous_frame, p0, p1, CV_RGB(0,0,0), 2 );
+		line( cf, p0, p1, CV_RGB(0,0,0), 2 );
 	}
 	else{	
-		line( previous_frame, p0, p1, CV_RGB(255,255,255), 2 );
+		line( cf, p0, p1, CV_RGB(255,255,255), 2 );
 	}
 }
 

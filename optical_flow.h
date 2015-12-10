@@ -39,10 +39,10 @@ public:
 	OpticalFlow(bool debug=false);
 	// Compute Optical flow with given points.
 	// Compute Optical flow without points given (we calculate our own points).	
-	void computeOpticalFlow(Mat current_frame);
+	void computeOpticalFlow(Mat& cf);
 private:
 	bool debug_;
-	void drawFlow(Point2f point_a, Point2f point_b, bool camera_motion);
+	void drawFlow(Point2f point_a, Point2f point_b, bool camera_motion, Mat& cf);
 	void buildPointGrid(Mat current_frame);
 	double computeDistance(Point2f point_a, Point2f point_b);
 	double computeAngle(Point2f point_a, Point2f point_b);
