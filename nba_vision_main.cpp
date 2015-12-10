@@ -24,12 +24,24 @@ void MouseCallBack(int event, int x, int y, int flags, void* userdata);
 mutex mtx;
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        cout << "usage: " << argv[0] << " <filename>" << endl;
+    if (argc != 3) {
+        cout << "usage: " << argv[0] << " <filename>" << "<outputfile>" << endl;
         return -1;
     }
     // Open the specified video file.
     VideoCapture video_capture(argv[1]);
+
+    VideoWriter output_cap(argv[2], 
+               CV_FOURCC('m', 'p', '4', 'v'),
+               30,
+               Size(video_capture.get(CV_CAP_PROP_FRAME_WIDTH),
+               video_capture.get(CV_CAP_PROP_FRAME_HEIGHT)));
+    //cout << video_capture.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
+    if (!output_cap.isOpened())
+    {
+        std::cout << "!!! Output video could not be opened" << std::endl;
+        return -1;
+    }
 
     if (!video_capture.isOpened()) {
         cout << "Cannot open the video file." << endl;
@@ -53,6 +65,7 @@ int main(int argc, char* argv[]) {
         if (bball_tracker != nullptr) {
             // Track the basketball in each frame.
             bball_tracker->TrackBall(frame);
+	    output_cap.write(frame);
         }
 
         imshow(kWindowName, frame);
@@ -75,6 +88,7 @@ int main(int argc, char* argv[]) {
                         pair<int, int>(init_ball_x, init_ball_y),
                         kDebug));
             bball_tracker->TrackBall(frame);
+	    output_cap.write(frame); 
         }
         mtx.unlock();
 
