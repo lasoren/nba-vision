@@ -37,7 +37,6 @@ int main(int argc, char* argv[]) {
                15,
                Size(video_capture.get(CV_CAP_PROP_FRAME_WIDTH),
                video_capture.get(CV_CAP_PROP_FRAME_HEIGHT)));
-    //cout << video_capture.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
     if (!output_cap.isOpened())
     {
         std::cout << "!!! Output video could not be opened" << std::endl;
